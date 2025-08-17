@@ -7,6 +7,8 @@ python -m venv .venv
 # PowerShell
 . .venv/Scripts/Activate.ps1
 pip install -r backend/requirements.txt
+# For PDF parsing features, also install optional:
+# pip install -r backend/requirements-optional.txt
 uvicorn backend.app.main:app --reload --port 8000
 ```
 

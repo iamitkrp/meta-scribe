@@ -2,6 +2,14 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
 import uuid
 from typing import Any, Dict
+from ..services.pdf.parser import (
+    extract_text_from_pdf_bytes,
+    split_into_sections,
+    detect_datasets,
+    extract_equations,
+    guess_abstract,
+    guess_methodology,
+)
 
 
 router = APIRouter()
@@ -21,17 +29,25 @@ async def parse_paper(file: UploadFile = File(...)) -> Any:
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported in MVP")
 
-    # MVP stub: read bytes and return placeholders
-    _bytes = await file.read()
-    _ = len(_bytes)
+    pdf_bytes = await file.read()
+    try:
+        full_text = extract_text_from_pdf_bytes(pdf_bytes)
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    sections = split_into_sections(full_text)
+    abstract = guess_abstract(sections, full_text)
+    methodology = guess_methodology(sections, full_text) or ""
+    datasets = detect_datasets(full_text)
+    equations = extract_equations(full_text, max_equations=5)
 
     return ParseResponse(
         doc_id=str(uuid.uuid4()),
         title=None,
-        abstract=None,
-        methodology="Extracted methodology placeholder.",
-        equations=[],
-        datasets=[],
+        abstract=abstract,
+        methodology=methodology,
+        equations=equations,
+        datasets=datasets,
     )
 
 
