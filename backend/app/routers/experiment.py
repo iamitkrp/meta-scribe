@@ -1,9 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-import subprocess
-import tempfile
-import sys
 from typing import Any, Dict
+from ..core.config import settings
+from ..services.sandbox import LocalExecutor, DockerExecutor
 
 
 router = APIRouter()
@@ -21,16 +20,17 @@ class RunResponse(BaseModel):
 
 @router.post("/run", response_model=RunResponse)
 async def run_code(req: RunRequest) -> Dict[str, Any]:
-    with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as fp:
-        fp.write(req.code)
-        fp.flush()
-        proc = subprocess.run(
-            [sys.executable, fp.name],
-            capture_output=True,
-            text=True,
-            timeout=60,
+    if settings.sandbox_mode == "docker":
+        executor = DockerExecutor(
+            image=settings.docker_image,
+            memory=settings.docker_memory,
+            cpus=settings.docker_cpus,
         )
-    return RunResponse(stdout=proc.stdout, stderr=proc.stderr, returncode=proc.returncode)
+    else:
+        executor = LocalExecutor()
+
+    result = executor.run_code(req.code, timeout_seconds=60)
+    return RunResponse(stdout=result.stdout, stderr=result.stderr, returncode=result.returncode)
 
 
 

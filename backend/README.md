@@ -25,6 +25,12 @@ curl http://localhost:8000/health
 ```
 
 ## LLM Configuration
+-## Sandbox
+- Modes:
+- `SANDBOX_MODE=local` (default) executes with the host Python in a temp file
+- `SANDBOX_MODE=docker` runs inside Docker with no network and resource limits
+- Docker settings (env): `DOCKER_IMAGE` (default `python:3.11-slim`), `DOCKER_MEMORY` (e.g., `512m`), `DOCKER_CPUS` (e.g., `0.5`)
+
 - Default provider: Gemini
 - Env var: `GEMINI_API_KEY` (or pass `api_key` from frontend)
 - Frontend can send `{ provider: "gemini", api_key: "..." }` for `/pseudocode/generate` and `/codegen/generate`.
