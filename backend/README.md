@@ -22,5 +22,10 @@ uvicorn backend.app.main:app --reload --port 8000
 curl http://localhost:8000/health
 ```
 
+## LLM Configuration
+- Default provider: Gemini
+- Env var: `GEMINI_API_KEY` (or pass `api_key` from frontend)
+- Frontend can send `{ provider: "gemini", api_key: "..." }` for `/pseudocode/generate` and `/codegen/generate`.
+
 
 

@@ -46,4 +46,8 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Local planning/progress notes (keep out of repo)
+plan.md
+progress.md
+
 

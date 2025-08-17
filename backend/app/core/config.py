@@ -7,7 +7,10 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
+    llm_provider: str = "gemini"  # default provider
+    gemini_api_key: str | None = None
     openai_api_key: str | None = None
+    anthropic_api_key: str | None = None
 
     class Config:
         env_file = ".env"
