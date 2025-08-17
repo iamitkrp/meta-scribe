@@ -20,21 +20,28 @@ uvicorn backend.app.main:app --reload --port 8000
 - POST `/codegen/generate` (json: { pseudocode, framework })
 - POST `/experiment/run` (json: { code })
 - GET `/health`
+- POST `/eval/evaluate` (json: { run_id, metrics: [{ name, pattern, reported, direction, threshold }] })
+- GET `/eval/runs` (recent runs)
 
 ```bash
 curl http://localhost:8000/health
 ```
 
 ## LLM Configuration
--## Sandbox
+
+- Default provider: Gemini
+- Env var: `GEMINI_API_KEY` (or pass `api_key` from frontend)
+- Frontend can send `{ provider: "gemini", api_key: "..." }` for `/pseudocode/generate` and `/codegen/generate`.
+
+## Sandbox
 - Modes:
 - `SANDBOX_MODE=local` (default) executes with the host Python in a temp file
 - `SANDBOX_MODE=docker` runs inside Docker with no network and resource limits
 - Docker settings (env): `DOCKER_IMAGE` (default `python:3.11-slim`), `DOCKER_MEMORY` (e.g., `512m`), `DOCKER_CPUS` (e.g., `0.5`)
 
-- Default provider: Gemini
-- Env var: `GEMINI_API_KEY` (or pass `api_key` from frontend)
-- Frontend can send `{ provider: "gemini", api_key: "..." }` for `/pseudocode/generate` and `/codegen/generate`.
+## Persistence
+- SQLite DB `metascribe.db` (SQLModel)
+- Creates tables on startup; stores runs and evaluations
 
 
 

@@ -5,7 +5,9 @@ from .routers.papers import router as papers_router
 from .routers.pseudocode import router as pseudocode_router
 from .routers.codegen import router as codegen_router
 from .routers.experiment import router as experiment_router
+from .routers.eval import router as eval_router
 from .core.config import settings
+from .db import init_db
 
 
 def create_app() -> FastAPI:
@@ -29,6 +31,7 @@ def create_app() -> FastAPI:
     application.include_router(pseudocode_router, prefix="/pseudocode", tags=["pseudocode"])
     application.include_router(codegen_router, prefix="/codegen", tags=["codegen"])
     application.include_router(experiment_router, prefix="/experiment", tags=["experiment"])
+    application.include_router(eval_router, prefix="/eval", tags=["eval"])
 
     @application.get("/health")
     def health() -> dict:
@@ -38,5 +41,11 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+# Initialize DB at import time for dev simplicity
+try:
+    init_db()
+except Exception:
+    pass
 
 
