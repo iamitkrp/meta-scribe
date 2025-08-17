@@ -10,6 +10,7 @@ from ..services.pdf.parser import (
     guess_abstract,
     guess_methodology,
 )
+from ..services.arxiv import fetch_arxiv_pdf_and_meta
 
 
 router = APIRouter()
@@ -57,13 +58,21 @@ class ArxivRequest(BaseModel):
 
 @router.post("/parse-arxiv", response_model=ParseResponse)
 async def parse_arxiv(req: ArxivRequest) -> Dict[str, Any]:
+    pdf_bytes, meta = await fetch_arxiv_pdf_and_meta(req.url)
+    full_text = extract_text_from_pdf_bytes(pdf_bytes)
+    sections = split_into_sections(full_text)
+    abstract = meta.get("abstract") or guess_abstract(sections, full_text)
+    methodology = guess_methodology(sections, full_text) or ""
+    datasets = detect_datasets(full_text)
+    equations = extract_equations(full_text, max_equations=5)
+
     return ParseResponse(
         doc_id=str(uuid.uuid4()),
-        title=None,
-        abstract=None,
-        methodology="Extracted methodology placeholder from arXiv.",
-        equations=[],
-        datasets=[],
+        title=meta.get("title"),
+        abstract=abstract,
+        methodology=methodology,
+        equations=equations,
+        datasets=datasets,
     )
 
 

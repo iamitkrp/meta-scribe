@@ -15,6 +15,7 @@ uvicorn backend.app.main:app --reload --port 8000
 ## Endpoints (MVP)
 - POST `/papers/parse` (multipart PDF)
 - POST `/papers/parse-arxiv` (json: { url })
+  - Accepts arXiv ID or URL, downloads PDF + metadata, runs same parser
 - POST `/pseudocode/generate` (json: { methodology })
 - POST `/codegen/generate` (json: { pseudocode, framework })
 - POST `/experiment/run` (json: { code })

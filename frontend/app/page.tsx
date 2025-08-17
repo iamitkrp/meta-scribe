@@ -14,6 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState<{parse:boolean; pseudo:boolean; code:boolean; run:boolean}>({parse:false,pseudo:false,code:false,run:false});
   const [parsed, setParsed] = useState<ParseResponse | null>(null);
   const dropRef = useRef<HTMLDivElement | null>(null);
+  const [arxivUrl, setArxivUrl] = useState<string>("");
 
   const uploadPdf = async () => {
     if (!pdf) return;
@@ -22,6 +23,23 @@ export default function Home() {
     setLoading((s) => ({...s, parse:true}));
     try {
       const res = await fetch("/api/papers/parse", { method: "POST", body: fd });
+      const data: ParseResponse = await res.json();
+      setParsed(data);
+      setMethodology(data.methodology ?? "");
+    } finally {
+      setLoading((s) => ({...s, parse:false}));
+    }
+  };
+
+  const fetchArxiv = async () => {
+    if (!arxivUrl.trim()) return;
+    setLoading((s) => ({...s, parse:true}));
+    try {
+      const res = await fetch("/api/papers/parse-arxiv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: arxivUrl.trim() }),
+      });
       const data: ParseResponse = await res.json();
       setParsed(data);
       setMethodology(data.methodology ?? "");
@@ -142,6 +160,10 @@ export default function Home() {
             <button className="btn btn-primary" onClick={uploadPdf} disabled={!pdf || loading.parse}>{loading.parse ? 'Parsing...' : 'Parse'}</button>
           </div>
           <div className="subtle" style={{ marginTop: 8 }}>PDF se methodology, equations aur datasets nikalenge.</div>
+          <div className="row" style={{ marginTop: 14 }}>
+            <input className="input" placeholder="arXiv URL or ID (e.g., 1706.03762)" value={arxivUrl} onChange={(e)=>setArxivUrl(e.target.value)} />
+            <button className="btn" onClick={fetchArxiv} disabled={!arxivUrl || loading.parse}>{loading.parse ? 'Fetching...' : 'Fetch arXiv'}</button>
+          </div>
         </section>
       </div>
 
